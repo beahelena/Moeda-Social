@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String       @id @default(uuid())
+  name           String
+  email          String       @unique
+  password       String
+  transfer_as_payer  Transfer[]         @relation("payer")
+  transfer_as_recipient Transfer[]      @relation("recipient")
+  Access         Access?     @relation(fields: [accessId], references: [id])
+  accessId       String?
+  balance        Float
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+}
+
+
+model Access {
+  id         String       @id @default(uuid())
+  name       String       @unique
+  user       User[]
+  created_at DateTime     @default(now())
+  updated_at DateTime     @updatedAt
+}
+
+//relação de um para muitos
+
+model Transfer {
+  id String @id @default(uuid())
+  value  Float
+  Payer  User? @relation("payer", fields: [payerId], references: [id])
+  payerId String?
+
+  Recipient  User? @relation("recipient" ,fields: [recipientId], references: [id])
+  recipientId String?
+
+}
